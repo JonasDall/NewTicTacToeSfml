@@ -34,11 +34,13 @@ int main()
 {
 	const int textureSize{ 24 };
 	const int boardSize{ 3 };
+	const int viewSize{ textureSize * boardSize };
 
 	sf::RenderWindow window(sf::VideoMode(300, 300), "Uhm");
+	sf::View view(sf::Vector2f(viewSize / 2, viewSize / 2), sf::Vector2f(viewSize, viewSize));
+	window.setView(view);
 
 	int error[3]{};
-
 	sf::Texture tileTexture;
 	error[0] = tileTexture.loadFromFile("Resources/Tile.png");
 	sf::Texture circleTexture;
