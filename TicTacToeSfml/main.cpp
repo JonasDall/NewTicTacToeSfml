@@ -4,29 +4,61 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 
+enum class tileState
+{
+	empty,
+	circle,
+	cross
+};
+
 class Tile
 {
-	sf::Sprite m_sprite;
+	sf::Sprite m_tileSprite;
+	sf::Sprite m_stateSprite;
+	tileState state{ tileState::empty };
+
+	sf::Texture* stateTextures[2];
 
 public:
-	Tile(sf::Texture *texture, sf::Vector2f position)
+	Tile(sf::Texture *circleTexture, sf::Texture *crossTexture, sf::Texture *tileTexture, sf::Vector2f position) : stateTextures{circleTexture, crossTexture}
 	{
-		m_sprite.setTexture(*texture);
-		m_sprite.setPosition(position);
-	}
-
-	Tile()
-	{
+		m_tileSprite.setTexture(*tileTexture);
+		m_tileSprite.setPosition(position);
 	}
 
 	void setTexture(sf::Texture texture)
 	{
-		m_sprite.setTexture(texture);
+		m_tileSprite.setTexture(texture);
+
+		return;
 	}
 
 	sf::Sprite getSprite()
 	{
-		return m_sprite;
+		return m_tileSprite;
+	}
+
+	void setState(tileState newState)
+	{
+		state = newState;
+		updateState();
+
+		return;
+	}
+
+	void updateState()
+	{
+		switch (state)
+		{
+		case tileState::circle:
+			m_stateSprite.setTexture(*stateTextures[0]);
+			break;
+		case tileState::cross:
+			m_stateSprite.setTexture(*stateTextures[1]);
+			break;
+		}
+
+		return;
 	}
 };
 
@@ -36,7 +68,7 @@ int main()
 	const int boardSize{ 3 };
 	const int viewSize{ textureSize * boardSize };
 
-	sf::RenderWindow window(sf::VideoMode(300, 300), "Uhm");
+	sf::RenderWindow window(sf::VideoMode(boardSize * 100, boardSize * 100), "Uhm");
 	sf::View view(sf::Vector2f(viewSize / 2, viewSize / 2), sf::Vector2f(viewSize, viewSize));
 	window.setView(view);
 
@@ -64,12 +96,9 @@ int main()
 	{
 		for (unsigned int y{}; y < boardSize; ++y)
 		{
-			tileVector.push_back(Tile(&tileTexture, sf::Vector2f(static_cast<float>(textureSize) * x, static_cast<float>(textureSize) * y)));
+			tileVector.push_back(Tile(&circleTexture, &crossTexture, &tileTexture, sf::Vector2f(textureSize * x, textureSize * y)));
 		}
 	}
-
-	sf::Sprite spriteTest;
-	spriteTest.setTexture(tileTexture);
 
 	while (window.isOpen())
 	{
@@ -87,8 +116,6 @@ int main()
 		{
 			window.draw(tileVector[i].getSprite());
 		}
-
-		window.draw(spriteTest);
 
 		window.display();
 	}
