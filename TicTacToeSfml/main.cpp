@@ -80,11 +80,12 @@ int main()
 	sf::Texture crossTexture;
 	error[2] = crossTexture.loadFromFile("Resources/Cross.png");
 
-	for (int i{}; i < *std::end(error); ++i)
+	for (int i{}; i < sizeof(error) / sizeof(error[0]); ++i)
 	{
+		std::cout << "Image " << i << '\n';
 		if (error[i] == -1)
 		{
-			std::cout << "Image " << i << " not loaded";
+			std::cout << "Image " << i << " not loaded\n";
 			return -1;
 		}
 	}
