@@ -24,6 +24,7 @@ public:
 	{
 		m_tileSprite.setTexture(*tileTexture);
 		m_tileSprite.setPosition(position);
+		m_stateSprite.setPosition(position);
 	}
 
 	void setTexture(sf::Texture texture)
@@ -33,9 +34,16 @@ public:
 		return;
 	}
 
-	sf::Sprite getSprite()
+	void drawTile(sf::RenderWindow &window)
 	{
-		return m_tileSprite;
+		window.draw(m_tileSprite);
+		
+		if (state == tileState::empty)
+		{
+			return;
+		}
+		window.draw(m_stateSprite);
+		return;
 	}
 
 	void setState(tileState newState)
@@ -59,6 +67,21 @@ public:
 		}
 
 		return;
+	}
+
+	bool checkClick(sf::Vector2f location)
+	{
+		bool isWithinX{ (location.x > m_tileSprite.getPosition().x) && (location.x < (m_tileSprite.getPosition().x + m_tileSprite.getTextureRect().width)) };
+		bool isWithinY{ (location.y > m_tileSprite.getPosition().y) && (location.y < (m_tileSprite.getPosition().y + m_tileSprite.getTextureRect().height)) };
+
+		if ((isWithinX && isWithinY) && (state == tileState::empty))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 };
 
@@ -101,8 +124,12 @@ int main()
 		}
 	}
 
+	tileState currentPlayer{ tileState::circle };
+
 	while (window.isOpen())
 	{
+		sf::Vector2f mouseWorldLocation{};
+
 		sf::Event event{};
 		while (window.pollEvent(event))
 		{
@@ -110,12 +137,42 @@ int main()
 			{
 				window.close();
 			}
+			if (event.type == sf::Event::MouseButtonPressed)
+			{
+				mouseWorldLocation = window.mapPixelToCoords(sf::Vector2i(event.mouseButton.x, event.mouseButton.y));
+				std::cout << "World: " << mouseWorldLocation.x << " " << mouseWorldLocation.y << '\n';
+			}
+
 		}
+
+		for (unsigned int i{ 0 }; i < tileVector.size(); ++i)
+		{
+			if (tileVector[i].checkClick(mouseWorldLocation))
+			{
+				std::cout << i << '\n';
+				tileVector[i].setState(currentPlayer);
+
+				if (currentPlayer == tileState::circle)
+				{
+					currentPlayer = tileState::cross;
+				}
+				else
+				{
+					currentPlayer = tileState::circle;
+				}
+
+				//Check if someone won
+
+			}
+		}
+
+
+
 		window.clear();
 
 		for (unsigned int i{}; i < tileVector.size(); ++i)
 		{
-			window.draw(tileVector[i].getSprite());
+			tileVector[i].drawTile(window);
 		}
 
 		window.display();
