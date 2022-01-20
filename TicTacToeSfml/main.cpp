@@ -15,7 +15,7 @@ class Tile
 {
 	sf::Sprite m_tileSprite;
 	sf::Sprite m_stateSprite;
-	tileState state{ tileState::empty };
+	tileState m_state{ tileState::empty };
 
 	sf::Texture* stateTextures[2];
 
@@ -38,7 +38,7 @@ public:
 	{
 		window.draw(m_tileSprite);
 		
-		if (state == tileState::empty)
+		if (m_state == tileState::empty)
 		{
 			return;
 		}
@@ -48,15 +48,20 @@ public:
 
 	void setState(tileState newState)
 	{
-		state = newState;
+		m_state = newState;
 		updateState();
 
 		return;
 	}
 
+	tileState getState()
+	{
+		return m_state;
+	}
+
 	void updateState()
 	{
-		switch (state)
+		switch (m_state)
 		{
 		case tileState::circle:
 			m_stateSprite.setTexture(*stateTextures[0]);
@@ -74,7 +79,7 @@ public:
 		bool isWithinX{ (location.x > m_tileSprite.getPosition().x) && (location.x < (m_tileSprite.getPosition().x + m_tileSprite.getTextureRect().width)) };
 		bool isWithinY{ (location.y > m_tileSprite.getPosition().y) && (location.y < (m_tileSprite.getPosition().y + m_tileSprite.getTextureRect().height)) };
 
-		if ((isWithinX && isWithinY) && (state == tileState::empty))
+		if ((isWithinX && isWithinY) && (m_state == tileState::empty))
 		{
 			return true;
 		}
@@ -161,7 +166,26 @@ int main()
 					currentPlayer = tileState::circle;
 				}
 
-				//Check if someone won
+				//Check for winner
+				tileState hasWinner{ tileState::empty };
+
+				//Check horizontally
+				for (unsigned int f{}; f < boardSize; ++f)
+				{
+						
+				}
+
+				//Check vertically
+				for (unsigned int f{}; f < boardSize; ++f)
+				{
+
+				}
+
+				//Check diagonally
+				for (unsigned int f{}; f < 2; ++f)
+				{
+
+				}
 
 			}
 		}
