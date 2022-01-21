@@ -172,7 +172,10 @@ int main()
 				//Check horizontally
 				for (unsigned int f{}; f < boardSize; ++f)
 				{
-				
+					if (tileVector[i].getState() != tileState::empty)
+					{
+
+					}
 				}
 
 				//Check vertically
