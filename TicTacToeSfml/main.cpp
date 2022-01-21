@@ -172,7 +172,7 @@ int main()
 				//Check horizontally
 				for (unsigned int f{}; f < boardSize; ++f)
 				{
-						
+				
 				}
 
 				//Check vertically
