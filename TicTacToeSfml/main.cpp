@@ -100,24 +100,21 @@ int main()
 	sf::View view(sf::Vector2f(viewSize / 2, viewSize / 2), sf::Vector2f(viewSize, viewSize));
 	window.setView(view);
 
-	int error[3]{};
-	sf::Texture tileTexture;
-	error[0] = tileTexture.loadFromFile("Resources/Tile.png");
-	sf::Texture circleTexture;
-	error[1] = circleTexture.loadFromFile("Resources/Circle.png");
-	sf::Texture crossTexture;
-	error[2] = crossTexture.loadFromFile("Resources/Cross.png");
+	sf::Font font;
+	font.loadFromFile("Resources/game_over.ttf");
 
-	for (int i{}; i < sizeof(error) / sizeof(error[0]); ++i)
-	{
-		std::cout << "Image " << i << '\n';
-		if (error[i] == -1)
-		{
-			std::cout << "Image " << i << " not loaded\n";
-			return -1;
-		}
-	}
-	std::cout << "Textures loaded successfully\n";
+	sf::Text text;
+	text.setFont(font);
+	text.setString("Test");
+	text.setCharacterSize(50);
+	text.setPosition(static_cast<sf::Vector2f>(sf::Vector2i(5, 5)));
+
+	sf::Texture tileTexture;
+	tileTexture.loadFromFile("Resources/Tile.png");
+	sf::Texture circleTexture;
+	circleTexture.loadFromFile("Resources/Circle.png");
+	sf::Texture crossTexture;
+	crossTexture.loadFromFile("Resources/Cross.png");
 
 	std::vector<Tile> tileVector;
 
@@ -174,7 +171,10 @@ int main()
 				{
 					if (tileVector[i].getState() != tileState::empty)
 					{
+						if ((tileVector[i].getState() == tileVector[i + 3].getState()) && (tileVector[i].getState() == tileVector[i + 6].getState()))
+						{
 
+						}
 					}
 				}
 
@@ -201,6 +201,8 @@ int main()
 		{
 			tileVector[i].drawTile(window);
 		}
+
+		window.draw(text);
 
 		window.display();
 	}
