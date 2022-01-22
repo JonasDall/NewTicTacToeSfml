@@ -3,6 +3,8 @@
 #include <vector>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
+#include <chrono>
+#include <thread>
 
 enum class tileState
 {
@@ -88,7 +90,24 @@ public:
 			return false;
 		}
 	}
+
+	void setTileColor(sf::Color color)
+	{
+		m_tileSprite.setColor(color);
+		return;
+	}
 };
+
+tileState findStraightLine(std::vector<Tile>& vector, tileState lastState)
+{
+	std::cout << vector.size() << '\n';
+	return tileState::empty;
+}
+
+tileState findDiagonalLine(std::vector<Tile>& vector, tileState lastState)
+{
+	return tileState::empty;
+}
 
 int main()
 {
@@ -131,6 +150,7 @@ int main()
 	while (window.isOpen())
 	{
 		sf::Vector2f mouseWorldLocation{};
+		tileState hasWinner{ tileState::empty };
 
 		sf::Event event{};
 		while (window.pollEvent(event))
@@ -154,6 +174,21 @@ int main()
 				std::cout << i << '\n';
 				tileVector[i].setState(currentPlayer);
 
+				//Check horizontally for winner
+				hasWinner = findStraightLine(tileVector, currentPlayer);
+
+				//Check vertically for winner
+				if (hasWinner == tileState::empty)
+				{
+					hasWinner = findStraightLine(tileVector, currentPlayer);
+				}
+
+				//Check diagonally for winner
+				if (hasWinner == tileState::empty)
+				{
+					hasWinner = findDiagonalLine(tileVector, currentPlayer);
+				}
+
 				if (currentPlayer == tileState::circle)
 				{
 					currentPlayer = tileState::cross;
@@ -161,33 +196,6 @@ int main()
 				else
 				{
 					currentPlayer = tileState::circle;
-				}
-
-				//Check for winner
-				tileState hasWinner{ tileState::empty };
-
-				//Check horizontally
-				for (unsigned int f{}; f < boardSize; ++f)
-				{
-					if (tileVector[i].getState() != tileState::empty)
-					{
-						if ((tileVector[i].getState() == tileVector[i + 3].getState()) && (tileVector[i].getState() == tileVector[i + 6].getState()))
-						{
-
-						}
-					}
-				}
-
-				//Check vertically
-				for (unsigned int f{}; f < boardSize; ++f)
-				{
-
-				}
-
-				//Check diagonally
-				for (unsigned int f{}; f < 2; ++f)
-				{
-
 				}
 
 			}
@@ -205,6 +213,13 @@ int main()
 		window.draw(text);
 
 		window.display();
+
+		if (hasWinner != tileState::empty)
+		{
+			std::this_thread::sleep_for(std::chrono::seconds(5));
+			window.close();
+		}
+
 	}
 
 	return 0;
