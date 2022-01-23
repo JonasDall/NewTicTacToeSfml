@@ -98,21 +98,56 @@ public:
 	}
 };
 
-tileState findStraightLine(std::vector<Tile>& vector, tileState lastState)
+tileState findHorizontalLine(std::vector<Tile>& vector, tileState lastState, int size)
 {
-	std::cout << vector.size() << '\n';
+	for (unsigned int i{}; i < size; ++i)
+	{
+
+		for (unsigned int j{}; j < size; ++j)
+		{
+			std::cout << i + (j * size);
+		}
+		std::cout << '\n';
+	}
+
 	return tileState::empty;
 }
 
-tileState findDiagonalLine(std::vector<Tile>& vector, tileState lastState)
+tileState findVerticalLine(std::vector<Tile>& vector, tileState lastState, int size)
 {
+	for (unsigned int i{}; i < size; ++i)
+	{
+		for (unsigned int j{}; j < size; ++j)
+		{
+			std::cout << (i * size) + j;
+		}
+		std::cout << '\n';
+	}
+
+	return tileState::empty;
+}
+
+tileState findDiagonalLine(std::vector<Tile>& vector, tileState lastState, int size)
+{
+	for (unsigned int i{}; i < size; ++i)
+	{
+		std::cout << (1 + size) * i;
+	}
+	std::cout << '\n';
+
+	for (unsigned int i{}; i < size; ++i)
+	{
+		std::cout << (size - 1) * (i + 1);
+	}
+std::cout << '\n';
+
 	return tileState::empty;
 }
 
 int main()
 {
 	const int textureSize{ 24 };
-	const int boardSize{ 3 };
+	const int boardSize{ 4 };
 	const int viewSize{ textureSize * boardSize };
 
 	sf::RenderWindow window(sf::VideoMode(boardSize * 100, boardSize * 100), "Uhm");
@@ -175,18 +210,18 @@ int main()
 				tileVector[i].setState(currentPlayer);
 
 				//Check horizontally for winner
-				hasWinner = findStraightLine(tileVector, currentPlayer);
+				hasWinner = findHorizontalLine(tileVector, currentPlayer, boardSize);
 
 				//Check vertically for winner
 				if (hasWinner == tileState::empty)
 				{
-					hasWinner = findStraightLine(tileVector, currentPlayer);
+					hasWinner = findVerticalLine(tileVector, currentPlayer, boardSize);
 				}
 
 				//Check diagonally for winner
 				if (hasWinner == tileState::empty)
 				{
-					hasWinner = findDiagonalLine(tileVector, currentPlayer);
+					hasWinner = findDiagonalLine(tileVector, currentPlayer, boardSize);
 				}
 
 				if (currentPlayer == tileState::circle)
