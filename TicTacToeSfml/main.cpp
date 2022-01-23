@@ -5,6 +5,7 @@
 #include <SFML/System.hpp>
 #include <chrono>
 #include <thread>
+#include <math.h>
 
 enum class tileState
 {
@@ -98,57 +99,112 @@ public:
 	}
 };
 
-tileState findHorizontalLine(std::vector<Tile>& vector, tileState lastState, int size)
+std::string printEnum(tileState state)
 {
-	for (unsigned int i{}; i < size; ++i)
+	std::string returnValue{};
+
+	switch (state)
 	{
+	case tileState::empty:
+		returnValue = "EMPTY";
+		break;
 
-		for (unsigned int j{}; j < size; ++j)
-		{
-			std::cout << i + (j * size);
-		}
-		std::cout << '\n';
+	case tileState::circle:
+		returnValue = "CIRCLE";
+		break;
+	case tileState::cross:
+		returnValue = "CROSS";
+		break;
 	}
-
-	return tileState::empty;
+	return returnValue;
 }
 
-tileState findVerticalLine(std::vector<Tile>& vector, tileState lastState, int size)
+std::vector<Tile> getLine()
 {
-	for (unsigned int i{}; i < size; ++i)
-	{
-		for (unsigned int j{}; j < size; ++j)
-		{
-			std::cout << (i * size) + j;
-		}
-		std::cout << '\n';
-	}
+	std::vector<Tile> vector;
 
-	return tileState::empty;
+	return vector;
 }
 
-tileState findDiagonalLine(std::vector<Tile>& vector, tileState lastState, int size)
+bool uniformCheck(std::vector<Tile>& inputVector)
 {
-	for (unsigned int i{}; i < size; ++i)
-	{
-		std::cout << (1 + size) * i;
-	}
-	std::cout << '\n';
+	bool result{ false };
 
-	for (unsigned int i{}; i < size; ++i)
+	for (unsigned int i{1}; i < inputVector.size(); ++i)
 	{
-		std::cout << (size - 1) * (i + 1);
-	}
-std::cout << '\n';
+		std::cout << "Value " << printEnum(inputVector[0].getState()) << " against " << printEnum(inputVector[i].getState()) << '\n';
 
-	return tileState::empty;
+		if (inputVector[0].getState() != inputVector[i].getState())
+		{
+			std::cout << "True!";
+			result = true;
+			break;
+		}
+	}
+
+	return result;
+}
+
+std::vector<Tile> getLine(std::vector<Tile>& inputVector, unsigned int line, unsigned int rowSize)
+{
+	std::vector<Tile> outputVector;
+
+	for (unsigned int i{}; i < rowSize; ++i)
+	{
+		outputVector.push_back(inputVector[(rowSize * i) + line]);
+	}
+
+	return outputVector;
+}
+
+
+bool checkWinner(std::vector<Tile>& vector)
+{
+	bool result{ false };
+	unsigned int rowSize{ static_cast<unsigned int>(sqrt(vector.size())) };
+
+	//Check rows
+	for (unsigned int i{}; i < rowSize; ++i)
+	{
+		std::vector<Tile> currentRow{getLine(vector, i, rowSize)};
+
+		result = uniformCheck(currentRow);
+		if (result)
+		{
+			break;
+		}
+	}
+
+	std::cout << "Rows have a winner: ";
+	if (result)
+	{
+		std::cout << "True!\n";
+	}
+	else
+	{
+		std::cout << "False\n";
+	}
+
+	//Seperate into rows
+	//Check if any rows are uniform
+	//Set row tiles as green
+
+	//Seperate into columns
+	//Check if any columns are uniform
+	//Set column tiles as green
+
+	//Seperate into diagonals
+	//Check if any diagonals are uniform
+	//Set diagonal tiles as uniform
+
+	return false;
 }
 
 int main()
 {
-	const int textureSize{ 24 };
-	const int boardSize{ 4 };
-	const int viewSize{ textureSize * boardSize };
+	const unsigned int textureSize{ 24 };
+	const unsigned int boardSize{ 3 };
+	const unsigned int viewSize{ textureSize * boardSize };
 
 	sf::RenderWindow window(sf::VideoMode(boardSize * 100, boardSize * 100), "Uhm");
 	sf::View view(sf::Vector2f(viewSize / 2, viewSize / 2), sf::Vector2f(viewSize, viewSize));
@@ -185,7 +241,7 @@ int main()
 	while (window.isOpen())
 	{
 		sf::Vector2f mouseWorldLocation{};
-		tileState hasWinner{ tileState::empty };
+		bool hasWinner{ false };
 
 		sf::Event event{};
 		while (window.pollEvent(event))
@@ -209,21 +265,6 @@ int main()
 				std::cout << i << '\n';
 				tileVector[i].setState(currentPlayer);
 
-				//Check horizontally for winner
-				hasWinner = findHorizontalLine(tileVector, currentPlayer, boardSize);
-
-				//Check vertically for winner
-				if (hasWinner == tileState::empty)
-				{
-					hasWinner = findVerticalLine(tileVector, currentPlayer, boardSize);
-				}
-
-				//Check diagonally for winner
-				if (hasWinner == tileState::empty)
-				{
-					hasWinner = findDiagonalLine(tileVector, currentPlayer, boardSize);
-				}
-
 				if (currentPlayer == tileState::circle)
 				{
 					currentPlayer = tileState::cross;
@@ -233,6 +274,13 @@ int main()
 					currentPlayer = tileState::circle;
 				}
 
+				//Check horizontally for winner
+
+				//Check vertically for winner
+			
+				//Check diagonally for winner
+
+				hasWinner = checkWinner(tileVector);
 			}
 		}
 
@@ -249,7 +297,7 @@ int main()
 
 		window.display();
 
-		if (hasWinner != tileState::empty)
+		if (hasWinner)
 		{
 			std::this_thread::sleep_for(std::chrono::seconds(5));
 			window.close();
