@@ -37,7 +37,7 @@ public:
 		return;
 	}
 
-	void drawTile(sf::RenderWindow &window)
+	void drawTile(sf::RenderWindow& window)
 	{
 		window.draw(m_tileSprite);
 		
@@ -119,25 +119,18 @@ std::string printEnum(tileState state)
 	return returnValue;
 }
 
-std::vector<Tile> getLine()
+tileState uniformCheck(std::vector<Tile>& inputVector)
 {
-	std::vector<Tile> vector;
-
-	return vector;
-}
-
-bool uniformCheck(std::vector<Tile>& inputVector)
-{
-	bool result{ false };
+	tileState result{ tileState::empty };
 
 	for (unsigned int i{1}; i < inputVector.size(); ++i)
 	{
 		std::cout << "Value " << printEnum(inputVector[0].getState()) << " against " << printEnum(inputVector[i].getState()) << '\n';
 
-		if (inputVector[0].getState() != inputVector[i].getState())
+		if (inputVector[0].getState() == inputVector[i].getState())
 		{
-			std::cout << "True!";
-			result = true;
+			std::cout << "True!\n";
+			result = inputVector[0].getState();
 			break;
 		}
 	}
@@ -152,6 +145,7 @@ std::vector<Tile> getLine(std::vector<Tile>& inputVector, unsigned int line, uns
 	for (unsigned int i{}; i < rowSize; ++i)
 	{
 		outputVector.push_back(inputVector[(rowSize * i) + line]);
+		std::cout << "Adding tile " << i << " at line " << line << '\n';
 	}
 
 	return outputVector;
@@ -168,11 +162,17 @@ bool checkWinner(std::vector<Tile>& vector)
 	{
 		std::vector<Tile> currentRow{getLine(vector, i, rowSize)};
 
-		result = uniformCheck(currentRow);
-		if (result)
+		for (unsigned int j{}; j < currentRow.size(); ++j)
 		{
+			std::cout << printEnum(currentRow[j].getState()) << '\n';
+		}
+
+		if (uniformCheck(currentRow) != tileState::empty)
+		{
+			result = true;
 			break;
 		}
+
 	}
 
 	std::cout << "Rows have a winner: ";
@@ -209,15 +209,6 @@ int main()
 	sf::RenderWindow window(sf::VideoMode(boardSize * 100, boardSize * 100), "Uhm");
 	sf::View view(sf::Vector2f(viewSize / 2, viewSize / 2), sf::Vector2f(viewSize, viewSize));
 	window.setView(view);
-
-	sf::Font font;
-	font.loadFromFile("Resources/game_over.ttf");
-
-	sf::Text text;
-	text.setFont(font);
-	text.setString("Test");
-	text.setCharacterSize(50);
-	text.setPosition(static_cast<sf::Vector2f>(sf::Vector2i(5, 5)));
 
 	sf::Texture tileTexture;
 	tileTexture.loadFromFile("Resources/Tile.png");
@@ -292,8 +283,6 @@ int main()
 		{
 			tileVector[i].drawTile(window);
 		}
-
-		window.draw(text);
 
 		window.display();
 
