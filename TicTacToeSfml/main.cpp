@@ -146,11 +146,61 @@ std::vector<Tile> getLine(std::vector<Tile>& inputVector, unsigned int line, uns
 	{
 		outputVector.push_back(inputVector[(rowSize * i) + line]);
 		std::cout << "Adding tile " << i << " at line " << line << '\n';
+		index.push_back((rowSize * i) + line);
 	}
 
 	return outputVector;
 }
 
+std::vector<Tile> getVerticalLine(std::vector<Tile>& inputVector, unsigned int line, unsigned int rowSize, std::vector<int>& index)
+{
+	std::vector<Tile> outputVector;
+
+	for (unsigned int i{}; i < rowSize; ++i)
+	{
+		outputVector.push_back(inputVector[(rowSize * line) + i]);
+		std::cout << "Adding tile " << i << " at line " << line << '\n';
+		index.push_back((rowSize * line) + i);
+	}
+
+	return outputVector;
+}
+
+std::vector<Tile> getDiagonalLine1(std::vector<Tile>& inputVector, unsigned int rowSize, std::vector<int>& index)
+{
+	std::vector<Tile> outputVector;
+
+	for (unsigned int i{}; i < rowSize; ++i)
+	{
+		outputVector.push_back(inputVector[((rowSize + 1) * i)]);
+		index.push_back((rowSize + 1) * i);
+	}
+
+	return outputVector;
+}
+
+std::vector<Tile> getDiagonalLine2(std::vector<Tile>& inputVector, unsigned int rowSize, std::vector<int>& index)
+{
+	std::vector<Tile> outputVector;
+
+	for (unsigned int i{1}; i < (rowSize + 1); ++i)
+	{
+		outputVector.push_back(inputVector[(rowSize - 1) * i]);
+		index.push_back((rowSize - 1) * i);
+	}
+
+	return outputVector;
+}
+
+void colorTiles(std::vector<Tile>& vector, std::vector<int>& index)
+{
+	for (unsigned int i{}; i < index.size(); ++i)
+	{
+		vector[index[i]].setTileColor(sf::Color::Green);
+	}
+
+	return;
+}
 
 bool checkWinner(std::vector<Tile>& vector)
 {
@@ -160,12 +210,14 @@ bool checkWinner(std::vector<Tile>& vector)
 	//Check rows
 	for (unsigned int i{}; i < rowSize; ++i)
 	{
+		std::cout << "---NEW LOOP---\n";
+
 		std::vector<int> rowIndex;
 		std::vector<Tile> currentRow{getLine(vector, i, rowSize, rowIndex)};
 
 		for (unsigned int k{}; k < rowIndex.size(); ++k)
 		{
-			std::cout << k << '\n';
+			std::cout << "Index array " << k << ": " << rowIndex[k] << '\n';
 		}
 
 		for (unsigned int j{}; j < currentRow.size(); ++j)
@@ -178,37 +230,102 @@ bool checkWinner(std::vector<Tile>& vector)
 		{
 			result = true;
 
-			for (unsigned int j{}; j < currentRow.size(); ++j)
-			{
-				currentRow[j].setTileColor(sf::Color::Green);
-			}
+			colorTiles(vector, rowIndex);
 
 			break;
 		}
 
 	}
-
-	std::cout << "Rows have a winner: ";
-	if (result)
+	//Check columns
+	if (!result)
 	{
-		std::cout << "True!\n";
+		for (unsigned int i{}; i < rowSize; ++i)
+		{
+			std::cout << "---NEW LOOP---\n";
+
+			std::vector<int> rowIndex;
+			std::vector<Tile> currentRow{ getVerticalLine(vector, i, rowSize, rowIndex) };
+
+			for (unsigned int k{}; k < rowIndex.size(); ++k)
+			{
+				std::cout << "Index array " << k << ": " << rowIndex[k] << '\n';
+			}
+
+			for (unsigned int j{}; j < currentRow.size(); ++j)
+			{
+
+				std::cout << printEnum(currentRow[j].getState()) << '\n';
+			}
+
+			if (uniformCheck(currentRow) != tileState::empty)
+			{
+				result = true;
+
+				colorTiles(vector, rowIndex);
+
+				break;
+			}
+
+		}
 	}
-	else
+	
+	//Check diagonals
+
+	if (!result)
 	{
-		std::cout << "False\n";
+		{
+			std::cout << "---NEW LOOP---\n";
+
+			std::vector<int> rowIndex;
+			std::vector<Tile> currentRow{ getDiagonalLine1(vector, rowSize, rowIndex) };
+
+			for (unsigned int k{}; k < rowIndex.size(); ++k)
+			{
+				std::cout << "Index array " << k << ": " << rowIndex[k] << '\n';
+			}
+
+			for (unsigned int j{}; j < currentRow.size(); ++j)
+			{
+
+				std::cout << printEnum(currentRow[j].getState()) << '\n';
+			}
+
+			if (uniformCheck(currentRow) != tileState::empty)
+			{
+				result = true;
+
+				colorTiles(vector, rowIndex);
+			}
+		}
 	}
 
-	//Seperate into rows
-	//Check if any rows are uniform
-	//Set row tiles as green
+	if (!result)
+	{
+		{
+			std::cout << "---NEW LOOP---\n";
 
-	//Seperate into columns
-	//Check if any columns are uniform
-	//Set column tiles as green
+			std::vector<int> rowIndex;
+			std::vector<Tile> currentRow{ getDiagonalLine2(vector, rowSize, rowIndex) };
 
-	//Seperate into diagonals
-	//Check if any diagonals are uniform
-	//Set diagonal tiles as uniform
+			for (unsigned int k{}; k < rowIndex.size(); ++k)
+			{
+				std::cout << "Index array " << k << ": " << rowIndex[k] << '\n';
+			}
+
+			for (unsigned int j{}; j < currentRow.size(); ++j)
+			{
+
+				std::cout << printEnum(currentRow[j].getState()) << '\n';
+			}
+
+			if (uniformCheck(currentRow) != tileState::empty)
+			{
+				result = true;
+
+				colorTiles(vector, rowIndex);
+			}
+		}
+	}
 
 	return result;
 }
@@ -277,12 +394,6 @@ int main()
 				{
 					currentPlayer = tileState::circle;
 				}
-
-				//Check horizontally for winner
-
-				//Check vertically for winner
-			
-				//Check diagonally for winner
 
 				hasWinner = checkWinner(tileVector);
 			}
