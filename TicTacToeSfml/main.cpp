@@ -121,16 +121,16 @@ std::string printEnum(tileState state)
 
 tileState uniformCheck(std::vector<Tile>& inputVector)
 {
-	tileState result{ tileState::empty };
+	tileState result{ inputVector[0].getState()};
 
 	for (unsigned int i{1}; i < inputVector.size(); ++i)
 	{
 		std::cout << "Value " << printEnum(inputVector[0].getState()) << " against " << printEnum(inputVector[i].getState()) << '\n';
 
-		if (inputVector[0].getState() == inputVector[i].getState())
+		if (inputVector[0].getState() != inputVector[i].getState())
 		{
-			std::cout << "True!\n";
-			result = inputVector[0].getState();
+			std::cout << "Not the same!\n";
+			result = tileState::empty;
 			break;
 		}
 	}
@@ -138,7 +138,7 @@ tileState uniformCheck(std::vector<Tile>& inputVector)
 	return result;
 }
 
-std::vector<Tile> getLine(std::vector<Tile>& inputVector, unsigned int line, unsigned int rowSize)
+std::vector<Tile> getLine(std::vector<Tile>& inputVector, unsigned int line, unsigned int rowSize, std::vector<int>& index)
 {
 	std::vector<Tile> outputVector;
 
@@ -160,16 +160,29 @@ bool checkWinner(std::vector<Tile>& vector)
 	//Check rows
 	for (unsigned int i{}; i < rowSize; ++i)
 	{
-		std::vector<Tile> currentRow{getLine(vector, i, rowSize)};
+		std::vector<int> rowIndex;
+		std::vector<Tile> currentRow{getLine(vector, i, rowSize, rowIndex)};
+
+		for (unsigned int k{}; k < rowIndex.size(); ++k)
+		{
+			std::cout << k << '\n';
+		}
 
 		for (unsigned int j{}; j < currentRow.size(); ++j)
 		{
+
 			std::cout << printEnum(currentRow[j].getState()) << '\n';
 		}
 
 		if (uniformCheck(currentRow) != tileState::empty)
 		{
 			result = true;
+
+			for (unsigned int j{}; j < currentRow.size(); ++j)
+			{
+				currentRow[j].setTileColor(sf::Color::Green);
+			}
+
 			break;
 		}
 
@@ -197,7 +210,7 @@ bool checkWinner(std::vector<Tile>& vector)
 	//Check if any diagonals are uniform
 	//Set diagonal tiles as uniform
 
-	return false;
+	return result;
 }
 
 int main()
